@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>QRcodeScan</title>
+    <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+</head>
+
+<body>
+    <h1>Start Scanning...</h1>
+    <video id="preview"></video>
+    <div id="cameraplacement"></div>
+    <script>
+        const cameraPlacement = document.getElementById('cameraplacement');
+
+        let cameraOption = 0
+        let camerasX = ''
+
+        let scanner = new Instascan.Scanner(
+            {
+                video: document.getElementById('preview'),
+                mirror: false, 
+                scanPeriod: 5
+            }
+        );
+
+        const changeCamera = () => {
+            if (cameraOption === 0) {
+                cameraOption = 1
+            } else {
+                cameraOption = 0
+            }
+            scanner.start(camerasX[cameraOption])
+            console.log(cameraOption)
+        }
+
+        function openInNewTab(url) {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+
+        scanner.addListener('scan', function (content) {
+            openInNewTab(content)
+        });
+        Instascan.Camera.getCameras().then(cameras => {
+            camerasX = cameras
+            if (cameras.length > 0) {
+                scanner.start(cameras[1]? cameras[1] : cameras[0]);
+                cameraplacement.innerHTML = `<button onClick="changeCamera()">Mudar câmera</button>`
+            } else {
+                console.error("Não existe câmera no dispositivo!");
+            }
+        });
+    </script>
+
+</body>
+
+</html>
